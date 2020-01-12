@@ -1,3 +1,21 @@
+
+export interface FormSchemaType {
+  login?: {},
+  onboard?: {}
+}
+
+export interface ResponseType {
+  error: boolean,
+  message: string,
+  metadata: object,
+  details: object
+}
+
+export interface ResponseFormat extends ResponseType {
+  Stacktrace?: string
+}
+
+
 /**
  * @desc ERROR COMPOSER
  * @param {*} Stacktrace ERROR TRACER
@@ -8,14 +26,12 @@
  * @param {*} details MORE ERROR DETAILS
  * @returns {object} JSON
  */
-export const errorMsg = (Stacktrace: String, statusCode: Number, field: String, target: String, message: String, details: Object) => ({
-  error: {
-    error: true,
-    Stacktrace,
-    metadata: { statusCode, field, target },
-    message: message || 'Error!',
-    details
-  }
+export const errorResponse = (Stacktrace: string, statusCode: number, field: string, target: string, message: string, details: object): ResponseFormat => ({
+  error: true,
+  Stacktrace,
+  metadata: { statusCode, field, target },
+  message: message || 'Error!',
+  details
 });
 
 /**
@@ -26,9 +42,31 @@ export const errorMsg = (Stacktrace: String, statusCode: Number, field: String, 
  * @param {*} details MORE DATA
  * @returns {object} JSON
  */
-export const successMsg = (message: String, statusCode: Number, target: String, details: Object) => ({
+export const successResponse = (message: string, statusCode: number, target: string, details: object): ResponseFormat => ({
   error: false,
   message: message || 'Success!',
   metadata: { statusCode, target},
   details
 });
+
+
+/**
+ * @desc SAMPLE REQUEST SCHEMA
+ */
+export const sampleFormSchema: FormSchemaType = {
+  login: {
+    formType: 'login',
+    dataField: { field: 'email', required: true, isEmail: true },
+    password: { field: 'password', required: true }
+  },
+  onboard: {
+    formType: 'signup',
+    FullName: { field: 'fullName', required: true, isName: true },
+    username: { field: 'username', required: true, isName: true },
+    email: { field: 'email', required: true, isEmail: true },
+    password: {
+      field: 'password', required: true, min: 8, max: 15
+    },
+    PhoneNumber: { field: 'phoneNumber', required: true, isPhoneNumber: true }
+  },
+};
