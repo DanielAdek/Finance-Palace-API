@@ -11,7 +11,7 @@ import logger from "./util/logger";
 import { connectOpt } from './helpers';
 import { MONGODB_URI } from "./util/secrets";
 import { saveHost } from "./libraries/loaders";
-import { errorMsg, successMsg } from './util/mSender';
+import { ResponseFormat, errorResonse, successResonse } from './util/mSender';
 
 require('express-async-errors');
 const app_start = moment().unix();
@@ -127,20 +127,21 @@ class Server {
 		APPLICATION.app.use('/api/v1', Routes.router);
 	}
 
-	public handleError = (): any => {
+	public handleError = () => {
 		const APPLICATION = this;
-		
 		return APPLICATION.app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+			const data: ResponseFormat = errorResonse('', 500, '', '', `${err.message}`, { operationStatus: 'Operation Terminated'});
 			logger.error(util.inspect(err, true, 5));
-			if (!res.headersSent) return res.status(500).json(errorMsg('', 500, '', '', `${err.message}`, { operationStatus: 'Operation Terminated'}));
+			if (!res.headersSent) return res.status(500).json(data);
 		});
 	};
 
 	private starter = () => {
 		const APPLICATION = this;
-		const data = { operationStatus: 'Operation Successful!', app_start };
+		const details = { operationStatus: 'Operation Successful!', app_start };
 		APPLICATION.app.get('/', (req: Request, res: Response) => {
-			return res.status(200).json(successMsg('', 200, 'Application is up and running', data));
+			const data: ResponseFormat = successResonse('', 200, 'Application is up and running', details)
+			return res.status(200).json(data);
 		});
 	}
 }

@@ -1,5 +1,5 @@
 {
-  "name": "Finance-Palace",
+  "name": "finance.palace",
   "version": "1.0.0",
   "description": "Application allows users to loan money from finance-palace",
   "main": "app.ts",
@@ -23,6 +23,7 @@
     "postinstall": "npm run build"
   },
   "dependencies": {
+    "bcrypt-nodejs": "^0.0.3",
     "bluebird": "^3.7.2",
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
@@ -41,6 +42,7 @@
     "winston": "^3.2.1"
   },
   "devDependencies": {
+    "@types/bcrypt-nodejs": "^0.0.30",
     "@types/bluebird": "^3.5.29",
     "@types/body-parser": "^1.17.1",
     "@types/cors": "^2.8.6",
