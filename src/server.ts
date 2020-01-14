@@ -11,7 +11,7 @@ import logger from "./util/logger";
 import { connectOpt } from './helpers';
 import { MONGODB_URI } from "./util/secrets";
 import { saveHost } from "./libraries/loaders";
-import { ResponseFormat, errorResonse, successResonse } from './util/mSender';
+import { ResponseFormat, errorResponse, successResponse } from './util/mSender';
 
 require('express-async-errors');
 const app_start = moment().unix();

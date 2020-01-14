@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Application allows users to loan money from finance-palace",
   "main": "app.ts",
-  "repository": "https://github.com/DanielAdek/Finance-Palace.git",
+  "repository": "https://github.com/DanielAdek/Finance-Palace-Easy-Funds.git",
   "author": "DanielAdek <maildaniel.me1@gmail.com>",
   "license": "MIT",
   "private": false,
