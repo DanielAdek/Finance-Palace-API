@@ -130,7 +130,7 @@ class Server {
 	public handleError = () => {
 		const APPLICATION = this;
 		return APPLICATION.app.use((err: any, req: Request, res: Response, next: NextFunction) => {
-			const data: ResponseFormat = errorResonse('', 500, '', '', `${err.message}`, { operationStatus: 'Operation Terminated'});
+			const data: ResponseFormat = errorResponse('', 500, '', '', `${err.message}`, { operationStatus: 'Operation Terminated'});
 			logger.error(util.inspect(err, true, 5));
 			if (!res.headersSent) return res.status(500).json(data);
 		});
@@ -140,7 +140,7 @@ class Server {
 		const APPLICATION = this;
 		const details = { operationStatus: 'Operation Successful!', app_start };
 		APPLICATION.app.get('/', (req: Request, res: Response) => {
-			const data: ResponseFormat = successResonse('', 200, 'Application is up and running', details)
+			const data: ResponseFormat = successResponse('', 200, 'Application is up and running', details)
 			return res.status(200).json(data);
 		});
 	}
