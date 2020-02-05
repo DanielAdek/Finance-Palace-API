@@ -6,12 +6,15 @@ type ComparePasswordType = ( this: UserModel, password: string ) => Promise<bool
 export interface User {
   firstName?: string,
   lastName?: string,
+  username?: string,
   avatar?: string,
   city?: string,
   state?: string,
-  dob?: string,
+  dob?: Date,
   email?: string,
-  phoneNumber?: any
+  phoneNumber?: string,
+  country?: string,
+  address?: string
 }
 
 export interface Login {
@@ -33,12 +36,15 @@ const UserSchema = new Schema({
   firstName: String,
   lastName: String,
   avatar: String,
+  username: String,
   city: String,
   state: String,
-  dob: String,
+  dob: Date,
   email: String,
   password: String,
-  phoneNumber: String
+  phoneNumber: String,
+  country: String,
+  address: String
 },
 {
   timestamps: true
@@ -59,9 +65,6 @@ const comparePassword: ComparePasswordType = async function(this: UserModel, pas
 
 UserSchema.methods.comparePassword = comparePassword;
 
-UserSchema.statics.loggedInUser = async function(id: string): Promise<UserModel> {
-  return await this.findOne({ _id: id })
-}
 UserSchema.methods.toJSON = function () {
   const _user = this.toObject();
   delete _user.password;
