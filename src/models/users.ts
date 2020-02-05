@@ -1,7 +1,7 @@
-import  mongoose from "mongoose";
+import { model, Document, Model, Schema } from "mongoose";
 import bcrypt from "bcrypt-nodejs";
 
-type comparePasswordType = ( this: UserModel, password: string ) => Promise<boolean>;
+type ComparePasswordType = ( this: UserModel, password: string ) => Promise<boolean>;
 
 export interface User {
   firstName?: string,
@@ -23,13 +23,13 @@ export interface jwtPayload {
   _id: string
 }
 
-export interface UserModel extends User, Login, mongoose.Document {
-  comparePassword: comparePasswordType
+export interface UserModel extends User, Login, Document {
+  comparePassword: ComparePasswordType
 }
 
-export interface IUserModel extends mongoose.Model<UserModel> {}
+export interface IUserModel extends Model<UserModel> {}
 
-const UserSchema = new mongoose.Schema({
+const UserSchema = new Schema({
   firstName: String,
   lastName: String,
   avatar: String,
@@ -51,7 +51,7 @@ UserSchema.pre("save", function save(this: UserModel){
   return;
 })
 
-const comparePassword: comparePasswordType = async function(this: UserModel, password: string){
+const comparePassword: ComparePasswordType = async function(this: UserModel, password: string){
   const user = this;
   const compare = await bcrypt.compareSync(password, user.password);
   return compare;
@@ -59,12 +59,15 @@ const comparePassword: comparePasswordType = async function(this: UserModel, pas
 
 UserSchema.methods.comparePassword = comparePassword;
 
+UserSchema.statics.loggedInUser = async function(id: string): Promise<UserModel> {
+  return await this.findById(id)
+}
 UserSchema.methods.toJSON = function () {
   const _user = this.toObject();
   delete _user.password;
   return _user;
 };
 
-const User = <IUserModel> mongoose.model("User", UserSchema);
+const User = <IUserModel>model("User", UserSchema);
 
 export default User;

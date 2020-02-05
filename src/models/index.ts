@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import { config } from 'dotenv';
-import Users from './users';
+import Users from '@models/users';
 
 config();
 
@@ -16,7 +16,7 @@ const options = {
 
 mongoose
   .connect(
-    (process.env.DB_URI || process.env['MONGODB_URI_LOCAL']),
+    (process.env.DB_URI! || process.env['MONGODB_URI_LOCAL']!),
     options
   )
   .then(() => {

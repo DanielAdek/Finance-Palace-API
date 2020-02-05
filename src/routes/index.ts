@@ -1,6 +1,6 @@
 import { default as express, Request, Response, Router } from "express";
 import bearer from "express-bearer-token";
-import UserRoute from './user';
+import UserRoute from '@routes/user';
 
 class Routes {
 	public router: Router;

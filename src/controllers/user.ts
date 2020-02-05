@@ -1,11 +1,11 @@
-import { Request, Response } from 'express';
-import { ResponseFormat, successResponse, errorResponse } from '../util/mSender';
-import { validateFields } from '../validation/lib';
-import { isPhoneNumber } from '../validation/lib/regex';
-import { formSchema } from '../validation/formSchema';
-import * as Messanger from '../helpers/messanger';
-import * as Utils from '../helpers';
-import db from '../modals';
+import { RequestHandler } from 'express';
+import { Form } from 'form-my-simple-validation';
+import { ResponseFormat, successResponse, errorResponse } from '@modules/util/mSender';
+import { isPhoneNumber } from '@modules/validation/lib/regex';
+import { formSchema } from '@modules/validation/formSchema';
+import * as Messanger from '@helpers/messanger';
+import * as Utils from '@helpers/index';
+import db from '@models/index';
 
 /**
  * @class Users
@@ -19,11 +19,11 @@ class User {
    * @param {object} res Response object
    * @returns {object} Json data
    */
-   public async onboardUser(req: Request, res: Response) {
+   static onboardUser: RequestHandler = async (req, res): Promise<any> => {
      try {
-       const validationResult: ResponseFormat = validateFields('onboard', formSchema, req.body);
+       const validationResult: ResponseFormat = Form.validateFields('onboard', formSchema, req.body);
        if (validationResult.error) {
-         return res.status(400).json(validationResult)
+         return res.status(400).json(validationResult);
        }
        const foundUser = await Messanger.shouldFindOneObject(db.Users, { email: req.body.email });
    
@@ -52,9 +52,9 @@ class User {
    * @param {object} res Response object
    * @returns {object} Json data
    */
-   public async login(req: Request, res: Response) {
+   static login: RequestHandler = async (req, res) => {
      try {
-       const validationResult: ResponseFormat = validateFields('authenticate', formSchema, req.body);
+       const validationResult: ResponseFormat = Form.validateFields('authenticate', formSchema, req.body);
        if (validationResult.error) {
          return res.status(400).json(validationResult)
        }
@@ -91,4 +91,4 @@ class User {
   }
 }
 
-export default new User();
+export default User;

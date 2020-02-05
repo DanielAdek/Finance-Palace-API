@@ -6,12 +6,12 @@ import mongoose from "mongoose";
 import bluebird from "bluebird";
 import bodyParser from "body-parser";
 import errorHandler from "errorhandler";
-import Routes from "./routes";
+import Routes from "@routes/index";
 import logger from "./util/logger";
-import { connectOpt } from './helpers';
+import { connectOpt } from '@helpers/index';
 import { MONGODB_URI } from "./util/secrets";
-import { saveHost } from "./libraries/loaders";
-import { ResponseFormat, errorResponse, successResponse } from './util/mSender';
+import { saveHost } from "@modules/libraries/loaders";
+import { ResponseFormat, errorResponse, successResponse } from '@modules/util/mSender';
 
 require('express-async-errors');
 const app_start = moment().unix();
@@ -22,13 +22,11 @@ const app_start = moment().unix();
  * @returns void
  */
 
-class Server {
-	public app: express.Application;
-
-	constructor() {
+class ExpressServer {
+	constructor(private app: express.Application) {
 		const APPLICATION = this;
 
-		APPLICATION.app = express();
+		APPLICATION.app = app;
 
 		APPLICATION.mongo();
 		
@@ -59,20 +57,20 @@ class Server {
 		APPLICATION.use(bodyParser.urlencoded({ extended: true }));
 
 		// SET APPLICATION PORT
-		APPLICATION.set("port", parseInt(process.env.PORT, 10));
+		APPLICATION.set("port", parseInt(process.env.PORT!, 10));
 
 		// ERROR HANDLER
 		APPLICATION.use(errorHandler());
 	};
 
 	public initialize = (): void => {
-		const APPLICATION = this;
+		const { app: APPLICATION } = this;
 
 		const message = "  App is running at http://localhost:%d in %s mode";
 		  
-		 APPLICATION.app.listen(APPLICATION.app.get('port'), () => {
+		 APPLICATION.listen(APPLICATION.get('port'), () => {
 		 
-		  console.info(message, APPLICATION.app.get("port"), APPLICATION.app.get("env"));
+		  console.info(message, APPLICATION.get("port"), APPLICATION.get("env"));
 		 
 		  logger.info("  Press CTRL-C to stop\n");
 		});
@@ -102,7 +100,7 @@ class Server {
 
 			setTimeout(() => console.info('Trying To Reconnect to DataStore'), 2000);
 			
-			setTimeout(() => mongoose.connect(MONGODB_URI, connectOpt), 5000);
+			setTimeout(() => mongoose.connect(MONGODB_URI!, connectOpt), 5000);
 		});
 		
 		connection.on('close', () => {
@@ -114,7 +112,7 @@ class Server {
 		});
 
 		const run = async (): Promise<void> => {
-			await mongoose.connect(MONGODB_URI, connectOpt);
+			await mongoose.connect(MONGODB_URI!, connectOpt);
 		};
 		run().catch((error: Error) => {
 			logger.error(`Connection Status: Error ${error}`);
@@ -122,14 +120,14 @@ class Server {
 	};
 
 	private routes = () => {
-		const APPLICATION = this;
+		const { app: APPLICATION } = this;
 
-		APPLICATION.app.use('/api/v1', Routes.router);
+		APPLICATION.use('/api/v1', Routes.router);
 	}
 
-	public handleError = () => {
-		const APPLICATION = this;
-		return APPLICATION.app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+	private handleError = () => {
+		const { app: APPLICATION } = this;
+		return APPLICATION.use((err: any, _: Request, res: Response, _2: NextFunction) => {
 			const data: ResponseFormat = errorResponse('', 500, '', '', `${err.message}`, { operationStatus: 'Operation Terminated'});
 			logger.error(util.inspect(err, true, 5));
 			if (!res.headersSent) return res.status(500).json(data);
@@ -137,13 +135,13 @@ class Server {
 	};
 
 	private starter = () => {
-		const APPLICATION = this;
+		const { app: APPLICATION } = this;
 		const details = { operationStatus: 'Operation Successful!', app_start };
-		APPLICATION.app.get('/', (req: Request, res: Response) => {
+		APPLICATION.get('/', (_, res: Response) => {
 			const data: ResponseFormat = successResponse('', 200, 'Application is up and running', details)
 			return res.status(200).json(data);
 		});
 	}
 }
 
-export default  new Server();
+export default new ExpressServer(express());
