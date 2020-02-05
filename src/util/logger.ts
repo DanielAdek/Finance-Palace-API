@@ -1,5 +1,5 @@
 import winston from "winston";
-import { ENVIRONMENT } from "./secrets";
+import { ENVIRONMENT } from "@modules/util/secrets";
 
 const logger = winston.createLogger({
 	transports: [

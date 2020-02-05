@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Application allows users to loan money from finance-palace",
   "main": "app.ts",
-  "repository": "https://github.com/DanielAdek/Finance-Palace-Easy-Funds.git",
+  "repository": "https://github.com/DanielAdek/Finance-Palace-API.git",
   "author": "DanielAdek <maildaniel.me1@gmail.com>",
   "license": "MIT",
   "private": false,
@@ -35,6 +35,7 @@
     "form-my-simple-validation": "^0.0.11",
     "jsonwebtoken": "^8.5.1",
     "minified-headless": "^0.1.0",
+    "module-alias": "^2.2.2",
     "moment": "^2.24.0",
     "mongoose": "^5.8.3",
     "ts-node": "^8.5.4",
@@ -54,5 +55,13 @@
     "@types/mongoose": "^5.5.36",
     "concurrently": "^5.0.2",
     "nodemon": "^2.0.2"
+  },
+  "_moduleAliases": {
+    "@modules": "dist/",
+    "@models": "dist/models",
+    "@controllers": "dist/controllers",
+    "@routes": "dist/routes",
+    "@util": "dist/util",
+    "@helpers": "dist/helpers"
   }
 }

@@ -1,9 +1,9 @@
 import { config } from 'dotenv';
 import JWT from 'jsonwebtoken';
-import { jwtPayload } from '../modals/users';
+import { jwtPayload } from '@models/users';
 
 config();
-const secret: string = process.env['SECRET'];
+const secret: string = process.env['SECRET']!;
 
 export const connectOpt = {
   autoReconnect: true,

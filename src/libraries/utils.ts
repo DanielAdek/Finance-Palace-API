@@ -2,7 +2,7 @@ import { Request } from "express";
 import m_ from "minified-headless";
 // import randomstring from "randomstring"
 // import validate from "validate.js";
-import * as secrets from "../util/secrets";
+import * as secrets from "@modules/util/secrets";
 
 const Utils = {
 

@@ -82,8 +82,8 @@ const compareTwoObjectsKeys = (expectedRequest: any, userForm: any, allowNullOrU
   if ((Object.keys(formSchema).map((data) => data)).length < 1) {
     return errorResponse('Unexpected Data', 400, 'argument', 'formSchema', 'Form_Schema should not be empty', { error: true, operationStatus: 'Processs Terminated!' });
   }
-  let x = false;
-  let xMsg = null;
+  let x: boolean = false;
+  let xMsg: ResponseFormat | any;
 
   Object.keys(formSchema).forEach((request) => {
     if (typeof formSchema[request] !== 'object' || Array.isArray(formSchema[request]) || formSchema[request] == null) {
@@ -199,7 +199,7 @@ const compareTwoObjectsKeys = (expectedRequest: any, userForm: any, allowNullOrU
         /**
          * @desc Find MISSING KEYS IN USER'S REQUEST-BODY
          */
-        const foundMissingKeys = compareTwoObjectsKeys(expectedFields, userForm, allowNullOrUndefinedValue);
+        const foundMissingKeys = compareTwoObjectsKeys(expectedFields, userForm, allowNullOrUndefinedValue = false);
         if (foundMissingKeys.missingFields.length || foundMissingKeys.isNullOrUndefined) {
           const defaultError = errorResponse(`${foundMissingKeys.isNullOrUndefined ? 'Object Property (value: null or undefined not accepted)' : 'Missing Fields'}`, 400, `${foundMissingKeys.missingFields.length ? foundMissingKeys.missingFields : foundMissingKeys.keyWithIsNullOrUndefined}`, 'userForm', `${foundMissingKeys.isNullOrUndefined ? 'Value null or undefined not accepted. Replace (null or undefined) with empty string, if you mean to return nothing' : `There are ${foundMissingKeys.count} fields missing in your request: ${foundMissingKeys.missingFields}`}`, { error: true, operationStatus: 'Processs Terminated!' });
           errorCompareKeys = errorSender(defaultError, customError);
