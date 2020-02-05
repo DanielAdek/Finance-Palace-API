@@ -60,7 +60,7 @@ const comparePassword: ComparePasswordType = async function(this: UserModel, pas
 UserSchema.methods.comparePassword = comparePassword;
 
 UserSchema.statics.loggedInUser = async function(id: string): Promise<UserModel> {
-  return await this.findById(id)
+  return await this.findOne({ _id: id })
 }
 UserSchema.methods.toJSON = function () {
   const _user = this.toObject();
