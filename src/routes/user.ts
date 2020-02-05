@@ -1,5 +1,6 @@
 import { Router } from "express";
 import User from "@controllers/user";
+import { verifyToken } from '@modules/middleware/auth';
 
 class UserRoutes {
   public router: Router;
@@ -10,10 +11,10 @@ class UserRoutes {
   }
 		
   private routes = () => {
-    this.router.post('/', User.loggedInUser);
+    this.router.get('/', verifyToken, User.loggedInUser);
     this.router.post('/register', User.onboardUser);
     this.router.post('/login', User.login);
-    this.router.put('/update', User.updateProfile);
+    this.router.put('/update', verifyToken, User.updateProfile);
   }
 }
 export default new UserRoutes();

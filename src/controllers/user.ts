@@ -107,7 +107,7 @@ class User {
       }
       
       // ensure id is from token
-      const { id } = req.body;
+      const { _id: id } = res.locals.decoded;
       const { username, firstName, lastName, city, state, oldPassword, email, password, phoneNumber, address } = req.body;
 
       const foundUser = await Messanger.shouldFindOneObject(db.Users, { _id: id });
@@ -160,7 +160,8 @@ class User {
    */
   static loggedInUser: RequestHandler = async (req, res): Promise<any> => {
     try {
-      const user = await Messanger.shouldFindOneObject(db.Users, { _id: req.body.id });
+      const { _id: id } = res.locals.decoded;
+      const user = await Messanger.shouldFindOneObject(db.Users, { _id: id });
       const token = Utils.generateToken('8760h', { _id: user._id });
       const result: ResponseFormat = successResponse('Successfull', 200, 're-login user', { error: false, operationStatus: 'Proccess Completed!', user, token })
       return res.status(201).json(result);
