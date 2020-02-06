@@ -1,6 +1,7 @@
 import { default as express, Request, Response, Router } from "express";
 import bearer from "express-bearer-token";
 import UserRoute from '@routes/user';
+import LoanRoute from '@routes/loan';
 
 class Routes {
 	public router: Router;
@@ -18,6 +19,7 @@ class Routes {
 
 	public applicationRoute = () => {
 	  this.router.use('/user', UserRoute.router)
+	  this.router.use('/loan', LoanRoute.router)
 	}
 };
 const routes = new Routes();

@@ -1,17 +1,19 @@
 import mongoose from 'mongoose';
 import { config } from 'dotenv';
 import Users from '@models/users';
+import Loans from '@models/loan';
+import Accounts from '@models/account';
 
 config();
 
 const options = {
-  reconnectTries: Number.MAX_VALUE,
-  reconnectInterval: 500,
   keepAlive: true,
   useCreateIndex: true,
   useNewUrlParser: true,
   useUnifiedTopology: true,
-  useFindAndModify: false
+  useFindAndModify: false,
+  socketTimeoutMS: 999999999,
+  connectTimeoutMS: 3000,
 };
 
 mongoose
@@ -35,5 +37,5 @@ mongoose.connection.on('error', (err: any) => {
 });
 
 export default {
-  Users
+  Users, Loans, Accounts
 };

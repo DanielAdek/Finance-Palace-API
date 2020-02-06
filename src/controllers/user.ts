@@ -7,6 +7,7 @@ import { formSchema } from '@modules/validation/formSchema';
 import * as Messanger from '@helpers/messanger';
 import * as Utils from '@helpers/index';
 import db from '@models/index';
+import { jwtPayload } from '@models/users';
 
 /**
  * @class Users
@@ -107,13 +108,13 @@ class User {
       }
       
       // ensure id is from token
-      const { _id: id } = res.locals.decoded;
+      const { _id: id }: jwtPayload = res.locals.decoded;
       const { username, firstName, lastName, city, state, oldPassword, email, password, phoneNumber, address } = req.body;
 
       const foundUser = await Messanger.shouldFindOneObject(db.Users, { _id: id });
    
        if (!foundUser) {
-         const result: ResponseFormat = errorResponse('IdentityError', 400, 'id', 'update user', 'user identity does not match any data found', { error: true, operationStatus: 'Proccess Terminated!' });
+         const result: ResponseFormat = errorResponse('RecognitionError', 400, 'id', 'update user', 'user identity does not match any data found', { error: true, operationStatus: 'Proccess Terminated!' });
          return res.status(400).json(result);
        }
 
