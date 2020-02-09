@@ -2,7 +2,7 @@ import { model, Document, Types, Schema, Model } from "mongoose";
 
 export interface Loan extends Document {
   customerId?: string,
-  amount?: number,
+  amount: number,
   deadline: Date,
   outstandingDays?: number,
   totalAmountPayable?: number,

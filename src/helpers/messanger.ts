@@ -1,6 +1,6 @@
 import { Model } from 'mongoose';
 
-interface body { id?: any, data: object }
+interface body { id?: any, data: object };
 
 /**
  * @desc CREATE FEATURE

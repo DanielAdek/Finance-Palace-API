@@ -12,9 +12,9 @@ const updateLoanCollection = async (): Promise<void> => {
       const today = new Date();
       let totalAmountPayable: number = 0;
       for(const loan of loans) {
-        if (loan.deadline < today) { 
+        if (loan.deadline < today) {
           const outstandingDays = calculateDateDifference(today, loan.deadline);
-          totalAmountPayable = outstandingDays * 1000;
+          totalAmountPayable = (outstandingDays * 1000) + loan.amount;
         }
         loan.totalAmountPayable = totalAmountPayable;
         await loan.save();
@@ -22,16 +22,15 @@ const updateLoanCollection = async (): Promise<void> => {
     }
   } catch(error) {
     const result: ResponseFormat = errorResponse(`${error.syscall || error.name || 'ServerError'}`, 500, `${error.path || 'No Field'}`, 'update loan. Cron-Job function', `${error.message}`, { error: true, operationStatus: 'Proccess Terminated!', errorSpec: error });
-    console.log(result)
-    // return res.status(500).json(result);
+    console.log(result);
   }
 }
 
-cron.schedule("59 59 23 * * *", () => {
+cron.schedule("59 59 23 * * *", async () => {
   console.log("********************");
   console.log("* Running Cron Job *");
   console.log("********************");
-  updateLoanCollection() 
+  await updateLoanCollection() 
 });
 
 Application.initialize();

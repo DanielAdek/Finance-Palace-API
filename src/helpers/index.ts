@@ -1,5 +1,8 @@
+import { Request } from 'express';
 import { config } from 'dotenv';
+import CryptoJS from 'crypto-js';
 import JWT from 'jsonwebtoken';
+import { errorResponse } from '@modules/util/mSender';
 import { jwtPayload } from '@models/users';
 
 config();
@@ -30,3 +33,22 @@ export const calculateDateDifference = function(date1: Date, date2: Date) {
   const utc2 = Date.UTC(date2.getFullYear(), date2.getMonth(), date2.getDate());
   return Math.floor((utc2 - utc1) / msPerDay);
 };
+
+export const decryptData = (ciphertext: string): string => {
+  const bytes  = CryptoJS.AES.decrypt(ciphertext.toString(), process.env['SECRET']!);
+  const plain_text = bytes.toString(CryptoJS.enc.Utf8);
+  return plain_text;
+}
+
+interface PlatformResponse {
+  isAllowed: boolean;
+  error?: any;
+}
+export const allowOnlyBrowsers = (req: Request): PlatformResponse => {
+  const platform: string[] = req.headers['user-agent']!.split('/');
+  if (!platform.includes('Mozilla')) {
+    const error = errorResponse('PlatformError', 400, '', 'platform', `This endpoint requires a browser`, { error: true, operationStatus: 'Process Terminated!', "plaform-detected": `${platform[0]}`, "platform-required": 'browser' });
+    return { isAllowed: false, error }
+  }
+  return { isAllowed: true }
+}

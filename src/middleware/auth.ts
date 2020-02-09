@@ -20,7 +20,7 @@ export const verifyToken: RequestHandler = (req, res, next) => {
     JWT.verify(token, secret, (err: JWTError, decoded: any) => {
       if (err) {
         const result: ResponseFormat = errorResponse('EACCES', 403, 'headers:{Authorization}', 'Authorize user', 'Client key is invalid. Access Denied!', { error: true, operationStatus: 'Processs Terminated!' });
-        return res.status(500).json(result);
+        return res.status(403).json(result);
       }
       res.locals.decoded = decoded;  
       next();

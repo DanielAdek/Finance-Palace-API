@@ -12,8 +12,8 @@ class LoanRoutes {
 		
   private routes = () => {
     this.router.post('/request', verifyToken, Loan.prototype.requestLoan);
-    this.router.post('/pay', verifyToken, Loan.prototype.payLoan);
-    this.router.post('/retreive', verifyToken, new Loan().retreiveLoan);
+    this.router.put('/pay', verifyToken, Loan.prototype.payLoan);
+    this.router.get('/retreive', verifyToken, Loan.prototype.retreiveLoan);
   }
 }
 export default new LoanRoutes();

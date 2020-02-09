@@ -52,7 +52,7 @@ const UserSchema = new Schema({
 
 UserSchema.index({ email: 1 }, { unique: true });
 
-UserSchema.pre("save", function save(this: UserModel){
+UserSchema.pre("save", function(this: any)  {
   this.password = bcrypt.hashSync(this.password);
   return;
 })

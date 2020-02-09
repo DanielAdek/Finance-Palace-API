@@ -12,7 +12,7 @@ import { jwtPayload } from '@models/users';
 /**
  * @class Users
  */
-class User {
+export class User {
   /**
    * @method onboardUser
    * @desc Feature create user account
@@ -21,7 +21,7 @@ class User {
    * @param {object} res Response object
    * @returns {object} Json data
    */
-   static onboardUser: RequestHandler = async (req, res): Promise<any> => {
+   protected onboardUser: RequestHandler = async (req, res): Promise<any> => {
      try {
        const validationResult: ResponseFormat = Form.validateFields('onboard', formSchema, req.body);
        if (validationResult.error) {
@@ -54,7 +54,7 @@ class User {
    * @param {object} res Response object
    * @returns {object} Json data
    */
-   static login: RequestHandler = async (req, res) => {
+   protected login: RequestHandler = async (req, res) => {
      try {
        const validationResult: ResponseFormat = Form.validateFields('authenticate', formSchema, req.body);
        if (validationResult.error) {
@@ -100,7 +100,7 @@ class User {
    * @param {object} res Response object
    * @returns {object} Json data
    */
-  static updateProfile: RequestHandler = async (req, res): Promise<any> => {
+  protected updateProfile: RequestHandler = async (req, res): Promise<any> => {
     try {
       const validationResult: ResponseFormat = Form.validateFields('update_profile', formSchema, req.body);
       if (validationResult.error) {
@@ -159,7 +159,7 @@ class User {
    * @param {object} res Response object
    * @returns {object} Json data
    */
-  static loggedInUser: RequestHandler = async (req, res): Promise<any> => {
+  protected loggedInUser: RequestHandler = async (_, res): Promise<any> => {
     try {
       const { _id: id } = res.locals.decoded;
       const user = await Messanger.shouldFindOneObject(db.Users, { _id: id });
@@ -172,5 +172,3 @@ class User {
    }
  }
 }
-
-export default User;

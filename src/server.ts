@@ -28,6 +28,8 @@ class ExpressServer {
 		
 		APPLICATION.routes();
 		
+		APPLICATION.all();
+
 		APPLICATION.starter();
 
 		APPLICATION.handleError();
@@ -75,6 +77,15 @@ class ExpressServer {
 		const { app: APPLICATION } = this;
 
 		APPLICATION.use('/api/v1', Routes.router);
+	}
+
+	private all = () => {
+		const { app: APPLICATION } = this;
+
+		APPLICATION.use('/*', (req: Request, res: Response) => {
+			const result: ResponseFormat = errorResponse('Route', 404, `${req.originalUrl}`, `${req.method}`, 'Route not found', { operationStatus: 'Operation Terminated'});
+			return res.status(404).json(result)
+		});
 	}
 
 	private handleError = () => {
