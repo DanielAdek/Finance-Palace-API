@@ -25,13 +25,13 @@ export class User {
      try {
        const validationResult: ResponseFormat = Form.validateFields('onboard', formSchema, req.body);
        if (validationResult.error) {
-         return res.status(400).json(validationResult);
+         return res.status(400).jsend.fail(validationResult);
        }
        const foundUser = await Messanger.shouldFindOneObject(db.Users, { email: req.body.email });
    
        if (foundUser) {
          const result: ResponseFormat = errorResponse('DuplicateKeyError', 400, 'email', 'Onboard', 'Email Already In Use', { error: true, operationStatus: 'Proccess Terminated!' });
-         return res.status(400).json(result);
+         return res.status(400).jsend.fail(result);
        }
    
        const user = await Messanger.shouldInsertToDataBase(db.Users, req.body);
@@ -39,10 +39,10 @@ export class User {
        const token = Utils.generateToken('8760h', { _id: user._id });
 
        const result: ResponseFormat = successResponse('Registration Successfull', 201, 'Onboard User', { error: false, operationStatus: 'Proccess Completed!', user, token })
-       return res.status(201).json(result);
+       return res.status(201).jsend.success(result);
     } catch (error) {
        const result: ResponseFormat = errorResponse(`${error.syscall || error.name || 'ServerError'}`, 500, `${error.path || 'No Field'}`, 'Onboard', `${error.message}`, { error: true, operationStatus: 'Proccess Terminated!', errorSpec: error });
-       return res.status(500).json(result);
+       return res.status(500).jsend.fail(result);
     }
   }
 
@@ -58,7 +58,7 @@ export class User {
      try {
        const validationResult: ResponseFormat = Form.validateFields('authenticate', formSchema, req.body);
        if (validationResult.error) {
-         return res.status(400).json(validationResult)
+         return res.status(400).jsend.fail(validationResult)
        }
        let user = null;
        const isPhone = isPhoneNumber(req.body.dataField);
@@ -75,20 +75,20 @@ export class User {
    
          if (!passwordMatch) {
           const result: ResponseFormat = errorResponse('AuthenticationError', 401, 'password', 'Authenticate user', 'Password Incorrect!', { error: true, operationStatus: 'Process Terminated', user: null });
-          return res.status(401).json(result);
+          return res.status(401).jsend.fail(result);
          }
    
          const token = Utils.generateToken('8760h', { _id: user._id });
    
         const result: ResponseFormat = successResponse('Authenticaton Successfull', 200, 'Authenticate user', { error: false, operationStatus: 'Process Completed', user, token });
-        return res.status(200).json(result);
+        return res.status(200).jsend.success(result);
        }
        
-       const result: ResponseFormat = errorResponse('Authentication Error', 400, 'Email/Phone Number', 'Authenticate user', `${isPhone ? 'The phone number you provide is not found!' : 'The email you provide is not found!'}`, { error: true, operationStatus: 'Process Terminated', user: null });
-       return res.status(400).json(result);
+       const result: ResponseFormat = errorResponse('AuthenticationError', 400, 'Email/Phone Number', 'Authenticate user', `${isPhone ? 'The phone number you provide is not found!' : 'The email you provide is not found!'}`, { error: true, operationStatus: 'Process Terminated', user: null });
+       return res.status(400).jsend.fail(result);
     } catch (error) {
        const result: ResponseFormat = errorResponse(`${error.syscall || error.name || 'ServerError'}`, 500, `${error.path || 'No Field'}`, 'Onboard', `${error.message}`, { error: true, operationStatus: 'Proccess Terminated!', errorSpec: error });
-       return res.status(500).json(result);
+       return res.status(500).jsend.fail(result);
     }
   }
 
@@ -104,7 +104,7 @@ export class User {
     try {
       const validationResult: ResponseFormat = Form.validateFields('update_profile', formSchema, req.body);
       if (validationResult.error) {
-        return res.status(400).json(validationResult);
+        return res.status(400).jsend.fail(validationResult);
       }
       
       // ensure id is from token
@@ -115,7 +115,7 @@ export class User {
    
        if (!foundUser) {
          const result: ResponseFormat = errorResponse('RecognitionError', 400, 'id', 'update user', 'user identity does not match any data found', { error: true, operationStatus: 'Proccess Terminated!' });
-         return res.status(400).json(result);
+         return res.status(400).jsend.fail(result);
        }
 
        // confirm password is from user of this account
@@ -123,7 +123,7 @@ export class User {
         const passwordMatch = await foundUser.comparePassword(oldPassword);
         if (!passwordMatch) {
           const result: ResponseFormat = errorResponse('SecurityTraceError', 401, 'oldPassword', 'change password', 'Password not match!', { error: true, operationStatus: 'Process Terminated', user: null });
-          return res.status(401).json(result);
+          return res.status(401).jsend.fail(result);
         }
       }
 
@@ -144,10 +144,10 @@ export class User {
       await Messanger.shouldEditOneObject(db.Users, request);
   
       const result: ResponseFormat = successResponse('Updated Successfull', 200, 'update user', { error: false, operationStatus: 'Proccess Completed!' })
-      return res.status(201).json(result);
+      return res.status(200).jsend.success(result);
    } catch (error) {
       const result: ResponseFormat = errorResponse(`${error.syscall || error.name || 'ServerError'}`, 500, `${error.path || 'No Field'}`, 'update user', `${error.message}`, { error: true, operationStatus: 'Proccess Terminated!', errorSpec: error });
-      return res.status(500).json(result);
+      return res.status(500).jsend.fail(result);
    }
  }
 
@@ -165,10 +165,10 @@ export class User {
       const user = await Messanger.shouldFindOneObject(db.Users, { _id: id });
       const token = Utils.generateToken('8760h', { _id: user._id });
       const result: ResponseFormat = successResponse('Successfull', 200, 're-login user', { error: false, operationStatus: 'Proccess Completed!', user, token })
-      return res.status(201).json(result);
+      return res.status(200).jsend.success(result);
    } catch (error) {
       const result: ResponseFormat = errorResponse(`${error.syscall || error.name || 'ServerError'}`, 500, `${error.path || 'No Field'}`, 'Onboard', `${error.message}`, { error: true, operationStatus: 'Proccess Terminated!', errorSpec: error });
-      return res.status(500).json(result);
+      return res.status(500).jsend.fail(result);
    }
  }
 }

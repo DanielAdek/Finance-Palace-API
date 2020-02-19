@@ -51,7 +51,7 @@ export class Loan extends ILoan {
       // validate fields
       const validationResult: ResponseFormat = Form.validateFields('request_loan', formSchema, req.body);
       if (validationResult.error) {
-        return res.status(400).json(validationResult);
+        return res.status(400).jsend.fail(validationResult);
       }
 
       const { _id: customerId }: jwtPayload = res.locals.decoded;
@@ -61,7 +61,7 @@ export class Loan extends ILoan {
   
       if (!user) {
         const result: ResponseFormat = errorResponse('RecognitionError', 400, 'customerId', 'request loan', 'user not found', { error: true, operationStatus: 'Proccess Terminated!' });
-        return res.status(400).json(result);
+        return res.status(400).jsend.fail(result);
       }
 
       // confirm password match
@@ -69,7 +69,7 @@ export class Loan extends ILoan {
 
       if (!passwordMatch) {
         const result: ResponseFormat = errorResponse('SecurityTraceError', 401, 'password', 'request loan', 'Password Incorrect!', { error: true, operationStatus: 'Process Terminated', user: null });
-        return res.status(401).json(result);
+        return res.status(401).jsend.fail(result);
       }
 
       // confirm user account
@@ -77,7 +77,7 @@ export class Loan extends ILoan {
   
       if (!userAccount) {
         const result: ResponseFormat = errorResponse('RecognitionError', 400, 'customerId', 'request loan', 'user account not found. create an account!', { error: true, operationStatus: 'Proccess Terminated!' });
-        return res.status(400).json(result);
+        return res.status(400).jsend.fail(result);
       }
 
       // confirm bvn is correct
@@ -86,7 +86,15 @@ export class Loan extends ILoan {
    
       if (!bvnMatch) {
         const result: ResponseFormat = errorResponse('SecurityTraceError', 401, 'bvn', 'request loan', 'BVN is not correct!', { error: true, operationStatus: 'Process Terminated', user: null });
-        return res.status(401).json(result);
+        return res.status(401).jsend.fail(result);
+      }
+
+      // confirm loan not too much
+      const userLoans = await Messanger.shouldFindObjects(db.Loans, { customerId, loanPaid: false }, {});
+  
+      if (userLoans.length > 3) {
+        const result: ResponseFormat = errorResponse('UserRequestError', 400, '', 'request loan', 'Sorry! you have too many outstanding loan.', { error: true, operationStatus: 'Proccess Terminated!' });
+        return res.status(400).jsend.fail(result);
       }
       
       // request the loan
@@ -95,10 +103,10 @@ export class Loan extends ILoan {
       const loan = await Messanger.shouldInsertToDataBase(db.Loans, { customerId, amount: req.body.amount, deadline, totalAmountPayable: req.body.amount });
 
       const result: ResponseFormat = successResponse('Request Successful', 201, 'request loan', { error: false, operationStatus: 'Proccess Completed!', loan })
-      return res.status(201).json(result);
+      return res.status(201).jsend.success(result);
     } catch(error) {
       const result: ResponseFormat = errorResponse(`${error.syscall || error.name || 'ServerError'}`, 500, `${error.path || 'No Field'}`, 'request loan', `${error.message}`, { error: true, operationStatus: 'Proccess Terminated!', errorSpec: error });
-      return res.status(500).json(result);
+      return res.status(500).jsend.fail(result);
    }
   }
   /**
@@ -113,11 +121,11 @@ export class Loan extends ILoan {
     try {
       const platform = Utils.allowOnlyBrowsers(req);
       if (!platform.isAllowed) {
-        return res.status(400).json(platform.error);
+        return res.status(400).jsend.fail(platform.error);
       }
       const validationResult: ResponseFormat = Form.validateFields('pay_loan', formSchema, req.body);
       if (validationResult.error) {
-        return res.status(400).json(validationResult);
+        return res.status(400).jsend.fail(validationResult);
       }
 
       const { _id: customerId }: jwtPayload = res.locals.decoded;
@@ -127,7 +135,7 @@ export class Loan extends ILoan {
 
       if (!user) {
         const result: ResponseFormat = errorResponse('RecognitionError', 400, 'customerId', 'pay loan', 'user not found', { error: true, operationStatus: 'Proccess Terminated!' });
-        return res.status(400).json(result);
+        return res.status(400).jsend.fail(result);
       }
 
       // confirm user has account
@@ -135,7 +143,7 @@ export class Loan extends ILoan {
   
       if (!userAccount) {
         const result: ResponseFormat = errorResponse('RecognitionError', 400, 'customerId', 'pay loan', 'Account not found. Create account', { error: true, operationStatus: 'Proccess Terminated!' });
-        return res.status(400).json(result);
+        return res.status(400).jsend.fail(result);
       }
 
       // confirm is not paid
@@ -143,16 +151,16 @@ export class Loan extends ILoan {
   
       if (loan.loanPaid) {
         const result: ResponseFormat = errorResponse('PaymentError', 400, 'loanId', 'pay loan', 'Loan has already been paid', { error: true, operationStatus: 'Proccess Terminated!' });
-        return res.status(400).json(result);
+        return res.status(400).jsend.fail(result);
       }
 
       let bankName: string | null = null;
       let insufficientFund: boolean = false;
-      let invalidBankId: boolean = false
+      let bankId: string | null = null;
 
       for(const bank of userAccount.banks) {
         if (bank._id.equals(req.body.bankId)) {
-          invalidBankId = false;
+          bankId = bank._id;
           // confirm balance is sufficient
           if (bank.balance < req.body.totalAmountPayable) {
             insufficientFund = true;
@@ -162,17 +170,17 @@ export class Loan extends ILoan {
             bankName = bank.bankName
             bank.balance -= req.body.totalAmountPayable;
           }
-        } else invalidBankId = true
+        }
       }
 
-      if (invalidBankId) {
-        const result: ResponseFormat = errorResponse('IdentityError', 422, 'bankId', 'pay loan', 'Invalid Bank Id', { error: true, operationStatus: 'Proccess Terminated!' });
-        return res.status(400).json(result);
+      if (!bankId) {
+        const result: ResponseFormat = errorResponse('IdentityError', 422, 'bankId', 'pay loan', 'Select A Marchant', { error: true, operationStatus: 'Proccess Terminated!' });
+        return res.status(400).jsend.fail(result);
       }
 
       if (insufficientFund) {
         const result: ResponseFormat = errorResponse('DebitError', 400, 'totalAmountPayable', 'pay loan', 'Insufficient Funds', { error: true, operationStatus: 'Proccess Terminated!' });
-        return res.status(400).json(result);
+        return res.status(400).jsend.fail(result);
       }
 
       await userAccount.save();
@@ -181,10 +189,10 @@ export class Loan extends ILoan {
       await Messanger.shouldEditOneObject(db.Loans, { id: req.body.loanId, data: { loanPaid: true, bank: bankName }});
 
       const result: ResponseFormat = successResponse('Payment is confirmed!', 200, 'pay loan', { error: false, operationStatus: 'Proccess Completed!' })
-      return res.status(201).json(result);
+      return res.status(201).jsend.success(result);
     } catch(error) {
       const result: ResponseFormat = errorResponse(`${error.syscall || error.name || 'ServerError'}`, 500, `${error.path || 'No Field'}`, 'pay loan', `${error.message}`, { error: true, operationStatus: 'Proccess Terminated!', errorSpec: error });
-      return res.status(500).json(result);
+      return res.status(500).jsend.fail(result);
     }
   }
 
@@ -205,7 +213,7 @@ export class Loan extends ILoan {
 
       if (!user) {
         const result: ResponseFormat = errorResponse('RecognitionError', 400, 'customerId', 'pay loan', 'user not found', { error: true, operationStatus: 'Proccess Terminated!' });
-        return res.status(400).json(result);
+        return res.status(400).jsend.fail(result);
       }
 
       // retreive loan
@@ -213,15 +221,15 @@ export class Loan extends ILoan {
   
       if (!userLoans.length) {
         const result: ResponseFormat = successResponse('No loans yet', 204, 'retreive loan', { error: false, operationStatus: 'Proccess Completed!', userLoans })
-        return res.status(200).json(result);
+        return res.status(200).jsend.success(result);
       }
 
       const result: ResponseFormat = successResponse('Loan Retreived', 200, 'retreive loan', { error: false, operationStatus: 'Proccess Completed!', userLoans })
-      return res.status(200).json(result);
+      return res.status(200).jsend.success(result);
  
     } catch(error) {
       const result: ResponseFormat = errorResponse(`${error.syscall || error.name || 'ServerError'}`, 500, `${error.path || 'No Field'}`, 'retreive loan', `${error.message}`, { error: true, operationStatus: 'Proccess Terminated!', errorSpec: error });
-      return res.status(500).json(result);
+      return res.status(500).jsend.fail(result);
     }
   }
 };

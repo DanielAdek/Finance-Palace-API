@@ -3,9 +3,10 @@ import cors from "cors";
 import util from "util";
 import moment from "moment";
 import bodyParser from "body-parser";
+import jsend from 'jsend';
 import errorHandler from "errorhandler";
 import Routes from "@routes/index";
-import logger from "./util/logger";
+import logger from "@modules/util/logger";
 import { saveHost } from "@modules/libraries/loaders";
 import { ResponseFormat, errorResponse, successResponse } from '@modules/util/mSender';
 
@@ -17,7 +18,6 @@ const app_start = moment().unix();
  * @class Server
  * @returns void
  */
-
 class ExpressServer {
 	constructor(private app: express.Application) {
 		const APPLICATION = this;
@@ -26,29 +26,29 @@ class ExpressServer {
 		
 		APPLICATION.config();
 		
+		APPLICATION.starter();
+		
 		APPLICATION.routes();
 		
 		APPLICATION.all();
-
-		APPLICATION.starter();
 
 		APPLICATION.handleError();
 	};
 
 	private config = (): void => {
 		const { app: APPLICATION } = this;
-		// APP USE CORS
-		APPLICATION.use(cors());
 
 		// SAVE HOST
 		APPLICATION.use(saveHost);
 
 		APPLICATION.set("json spaces", 4);
-
+		
 		// TRUST REVERSE PROXY
 		APPLICATION.set("trust proxy", true);
-
-		// USE BODYPASER TO PARSE JSON
+		
+		// USE MIDDLEWARES
+		APPLICATION.use(cors());
+		APPLICATION.use(jsend.middleware);
 		APPLICATION.use(bodyParser.json());
 		APPLICATION.use(bodyParser.urlencoded({ extended: true }));
 
@@ -84,7 +84,7 @@ class ExpressServer {
 
 		APPLICATION.use('/*', (req: Request, res: Response) => {
 			const result: ResponseFormat = errorResponse('Route', 404, `${req.originalUrl}`, `${req.method}`, 'Route not found', { operationStatus: 'Operation Terminated'});
-			return res.status(404).json(result)
+			return res.status(404).jsend.fail(result)
 		});
 	}
 
@@ -93,7 +93,7 @@ class ExpressServer {
 		return APPLICATION.use((err: any, _: Request, res: Response, _2: NextFunction) => {
 			const data: ResponseFormat = errorResponse('', 500, '', '', `${err.message}`, { operationStatus: 'Operation Terminated'});
 			logger.error(util.inspect(err, true, 5));
-			if (!res.headersSent) return res.status(500).json(data);
+			if (!res.headersSent) return res.status(500).jsend.fail(data);
 		});
 	};
 
@@ -101,8 +101,8 @@ class ExpressServer {
 		const { app: APPLICATION } = this;
 		const details = { operationStatus: 'Operation Successful!', app_start };
 		APPLICATION.get('/', (_, res: Response) => {
-			const data: ResponseFormat = successResponse('', 200, 'Application is up and running', details)
-			return res.status(200).json(data);
+			const result: ResponseFormat = successResponse('', 200, 'Application is up and running', details)
+			return res.status(200).jsend.success(result);
 		});
 	}
 }

@@ -62,7 +62,7 @@ export class Account extends IAccount {
       // validate fields
       const validationResult: ResponseFormat = Form.validateFields('create_account', formSchema, req.body);
       if (validationResult.error) {
-        return res.status(400).json(validationResult);
+        return res.status(400).jsend.fail(validationResult);
       }
 
       const { _id: customerId }: jwtPayload = res.locals.decoded;
@@ -72,7 +72,7 @@ export class Account extends IAccount {
 
       if (!user) {
         const result: ResponseFormat = errorResponse('RecognitionError', 400, 'customerId', 'create account', 'user not found', { error: true, operationStatus: 'Proccess Terminated!' });
-        return res.status(400).json(result);
+        return res.status(400).jsend.fail(result);
       }
 
       // confirm password match
@@ -80,7 +80,7 @@ export class Account extends IAccount {
 
       if (!passwordMatch) {
         const result: ResponseFormat = errorResponse('SecurityTraceError', 401, 'password', 'create account', 'Password Incorrect!', { error: true, operationStatus: 'Process Terminated', user: null });
-        return res.status(401).json(result);
+        return res.status(401).jsend.fail(result);
       }
 
       // confirm user account not existed
@@ -88,28 +88,26 @@ export class Account extends IAccount {
   
       if (userAccount) {
         const result: ResponseFormat = errorResponse('DuplicateError', 400, 'customerId', 'create account', 'You already have an account', { error: true, operationStatus: 'Proccess Terminated!' });
-        return res.status(400).json(result);
+        return res.status(400).jsend.fail(result);
       }
-
       
       // cipher bvn
       const bvn = CryptoJS.AES.encrypt(`BVN-${Math.floor(Math.random() * 1000000000000)}`, process.env['SECRET']!);
 
       // create account details
       const banks = [
-        { bankCode: Math.floor(Math.random() * 1000000), bankName: 'Bank of America', balance: 7000000 },
-        { bankCode: Math.floor(Math.random() * 1000000), bankName: 'Guarantee trust Bank', balance: 170000000 },
-        { bankCode: Math.floor(Math.random() * 1000000), bankName: 'United Bank of Africa', balance: 8000000000 },
+        { bankCode: Math.floor(Math.random() * 1000000), bankName: 'Guaranty trust Bank (GTBank)', balance: 170000000 },
+        { bankCode: Math.floor(Math.random() * 1000000), bankName: 'United Bank of Africa (UBA)', balance: 8000000000 },
       ];
       
       // Insert to database
       const account = await Messanger.shouldInsertToDataBase(db.Accounts, { customerId, bvn, banks });
 
       const result: ResponseFormat = successResponse('Account Created!', 201, 'create account', { error: false, operationStatus: 'Proccess Completed!', account })
-      return res.status(201).json(result);
+      return res.status(201).jsend.success(result);
     } catch(error) {
       const result: ResponseFormat = errorResponse(`${error.syscall || error.name || 'ServerError'}`, 500, `${error.path || 'No Field'}`, 'create account', `${error.message}`, { error: true, operationStatus: 'Proccess Terminated!', errorSpec: error });
-      return res.status(500).json(result);
+      return res.status(500).jsend.fail(result);
    }
   }
   /**
@@ -124,7 +122,7 @@ export class Account extends IAccount {
     try {
       const validationResult: ResponseFormat = Form.validateFields('update_account', formSchema, req.body);
       if (validationResult.error) {
-        return res.status(400).json(validationResult);
+        return res.status(400).jsend.fail(validationResult);
       }
 
       const { _id: customerId }: jwtPayload = res.locals.decoded;
@@ -134,7 +132,7 @@ export class Account extends IAccount {
 
       if (!user) {
         const result: ResponseFormat = errorResponse('RecognitionError', 400, 'customerId', 'update account', 'user not found', { error: true, operationStatus: 'Proccess Terminated!' });
-        return res.status(400).json(result);
+        return res.status(400).jsend.fail(result);
       }
 
       // confirm user has account
@@ -142,7 +140,7 @@ export class Account extends IAccount {
   
       if (!userAccount) {
         const result: ResponseFormat = errorResponse('RecognitionError', 400, 'customerId', 'update account', 'Account not found. Create account', { error: true, operationStatus: 'Proccess Terminated!' });
-        return res.status(400).json(result);
+        return res.status(400).jsend.fail(result);
       }
 
       // update balance
@@ -157,14 +155,14 @@ export class Account extends IAccount {
  
       if (!updated) {
         const result: ResponseFormat = errorResponse('ParamsError', 400, 'invalid', 'update account', 'Bank not found', { error: true, operationStatus: 'Proccess Terminated!' });
-        return res.status(400).json(result);
+        return res.status(400).jsend.fail(result);
       }
       const result: ResponseFormat = successResponse('Account updated!', 200, 'update account', { error: false, operationStatus: 'Proccess Completed!' })
-      return res.status(200).json(result);
+      return res.status(200).jsend.success(result);
  
     } catch(error) {
       const result: ResponseFormat = errorResponse(`${error.syscall || error.name || 'ServerError'}`, 500, `${error.path || 'No Field'}`, 'update account', `${error.message}`, { error: true, operationStatus: 'Proccess Terminated!', errorSpec: error });
-      return res.status(500).json(result);
+      return res.status(500).jsend.fail(result);
     }
   }
 
@@ -185,23 +183,23 @@ export class Account extends IAccount {
 
       if (!user) {
         const result: ResponseFormat = errorResponse('RecognitionError', 400, 'customerId', 'pay loan', 'user not found', { error: true, operationStatus: 'Proccess Terminated!' });
-        return res.status(400).json(result);
+        return res.status(400).jsend.fail(result);
       }
 
       // retreive user account
-      const userAccount = await Messanger.shouldFindOneObject(db.Accounts, { customerId });
+      const userAccount = await Messanger.shouldFindOneObject(db.Accounts, { customerId }).populate('customerId');
   
       if (!userAccount) {
         const result: ResponseFormat = successResponse('No account yet', 204, 'retreive account', { error: false, operationStatus: 'Proccess Completed!', userAccount: null })
-        return res.status(200).json(result);
+        return res.status(200).jsend.success(result);
       }
 
       const result: ResponseFormat = successResponse('Account Retreived!', 200, 'retreive account', { error: false, operationStatus: 'Proccess Completed!', userAccount })
-      return res.status(200).json(result);
+      return res.status(200).jsend.success(result);
  
     } catch(error) {
       const result: ResponseFormat = errorResponse(`${error.syscall || error.name || 'ServerError'}`, 500, `${error.path || 'No Field'}`, 'retreive account', `${error.message}`, { error: true, operationStatus: 'Proccess Terminated!', errorSpec: error });
-      return res.status(500).json(result);
+      return res.status(500).jsend.fail(result);
     }
   }
 
@@ -213,8 +211,12 @@ export class Account extends IAccount {
    * @param {object} res Response object
    * @desc Feature allows reveal Bvn
    */
-   protected async revealBvn(_: Request, res: Response): Promise<any> {
+   protected async revealBvn(req: Request, res: Response): Promise<any> {
     try {
+      const platform = Utils.allowOnlyBrowsers(req);
+      if (!platform.isAllowed) {
+        return res.status(400).jsend.fail(platform.error);
+      }
       const { _id: customerId }: jwtPayload = res.locals.decoded;
 
       // confirm user exist
@@ -222,7 +224,7 @@ export class Account extends IAccount {
 
       if (!user) {
         const result: ResponseFormat = errorResponse('RecognitionError', 400, 'customerId', 'pay loan', 'user not found', { error: true, operationStatus: 'Proccess Terminated!' });
-        return res.status(400).json(result);
+        return res.status(400).jsend.fail(result);
       }
 
       // retreive loan
@@ -230,17 +232,17 @@ export class Account extends IAccount {
   
       if (!userAccount) {
         const result: ResponseFormat = successResponse('No account yet', 204, 'retreive account', { error: false, operationStatus: 'Proccess Completed!', userAccount: null })
-        return res.status(200).json(result);
+        return res.status(200).jsend.success(result);
       }
 
       const bvn = Utils.decryptData(userAccount.bvn);
 
       const result: ResponseFormat = successResponse('Account Retreived!', 200, 'retreive account', { error: false, operationStatus: 'Proccess Completed!', bvn })
-      return res.status(200).json(result);
+      return res.status(200).jsend.success(result);
  
     } catch(error) {
       const result: ResponseFormat = errorResponse(`${error.syscall || error.name || 'ServerError'}`, 500, `${error.path || 'No Field'}`, 'retreive account', `${error.message}`, { error: true, operationStatus: 'Proccess Terminated!', errorSpec: error });
-      return res.status(500).json(result);
+      return res.status(500).jsend.fail(result);
     }
   }
 };

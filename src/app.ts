@@ -10,13 +10,12 @@ const updateLoanCollection = async (): Promise<void> => {
     const loans = await db.Loans.find({ loanPaid: false });
     if (loans.length) {
       const today = new Date();
-      let totalAmountPayable: number = 0;
-      for(const loan of loans) {
-        if (loan.deadline < today) {
+      for(let loan of loans) {
+        if (loan.deadline > today) {
           const outstandingDays = calculateDateDifference(today, loan.deadline);
-          totalAmountPayable = (outstandingDays * 1000) + loan.amount;
+          let newAmout = outstandingDays * 1000;
+          loan.totalAmountPayable! += newAmout;
         }
-        loan.totalAmountPayable = totalAmountPayable;
         await loan.save();
       }
     }
@@ -26,12 +25,12 @@ const updateLoanCollection = async (): Promise<void> => {
   }
 }
 
-cron.schedule("59 59 23 * * *", async () => {
+cron.schedule("0 0 0 * * *", () => {
   console.log("********************");
   console.log("* Running Cron Job *");
   console.log("********************");
-  await updateLoanCollection() 
-});
+  updateLoanCollection() 
+}).start();
 
 Application.initialize();
 

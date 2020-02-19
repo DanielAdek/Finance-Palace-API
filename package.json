@@ -24,6 +24,7 @@
   },
   "dependencies": {
     "@types/crypto-js": "^3.1.43",
+    "@types/jsend": "^1.0.28",
     "@types/node-cron": "^2.0.2",
     "bcrypt-nodejs": "^0.0.3",
     "bluebird": "^3.7.2",
@@ -36,6 +37,7 @@
     "express-async-errors": "^3.1.1",
     "express-bearer-token": "^2.4.0",
     "form-my-simple-validation": "^0.0.11",
+    "jsend": "^1.1.0",
     "jsonwebtoken": "^8.5.1",
     "minified-headless": "^0.1.0",
     "module-alias": "^2.2.2",

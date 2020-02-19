@@ -13,12 +13,7 @@ export const formSchema = {
     b: { field: 'lastName', required: true, isName: true },
     c: { field: 'email', required: true, isEmail: true },
     d: { field: 'dob', required: true },
-    e: { field: 'city', required: true },
-    f: { field: 'state', required: true, isName: true },
-    g: { field: 'address', required: true },
     h: { field: 'username', required: true, isName: true },
-    i: { field: 'country', required: true, isName: true },
-    j: { field: 'phoneNumber', required: true, isPhoneNumber: true },
     k: {
       field: 'password', required: true, min: 8, max: 15
     }
@@ -40,7 +35,7 @@ export const formSchema = {
   },
   payloan: {
     formType: 'pay_loan',
-    a: { field: 'bankId', required: true},
+    a: { field: 'bankId'},
     b: { field: 'totalAmountPayable', isInteger: true },
     c: { field: 'loanId', required: true }
   },
