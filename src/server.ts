@@ -101,7 +101,7 @@ class ExpressServer {
 		const { app: APPLICATION } = this;
 		const details = { operationStatus: 'Operation Successful!', app_start };
 		APPLICATION.get('/', (_, res: Response) => {
-			const result: ResponseFormat = successResponse('', 200, 'Finance Palace is up and running', details)
+			const result: ResponseFormat = successResponse('Success!', 200, 'Finance Palace is up and running', details)
 			return res.status(200).jsend.success(result);
 		});
 	}
