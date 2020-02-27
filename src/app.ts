@@ -11,8 +11,8 @@ const updateLoanCollection = async (): Promise<void> => {
     if (loans.length) {
       const today = new Date();
       for(let loan of loans) {
-        if (loan.deadline > today) {
-          const outstandingDays = calculateDateDifference(today, loan.deadline);
+        if (loan.deadline < today) {
+          const outstandingDays = calculateDateDifference(loan.deadline, today);
           let newAmout = outstandingDays * 1000;
           loan.totalAmountPayable! += newAmout;
         }
