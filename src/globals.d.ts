@@ -1,0 +1,1 @@
+declare module 'form-my-simple-validation';
