@@ -5,8 +5,6 @@ import { ResponseFormat, errorResponse } from '@modules/util/mSender';
 
 config();
 
-type JWTError = JWT.JsonWebTokenError | JWT.NotBeforeError | JWT.TokenExpiredError;
-
 const secret: string = process.env['SECRET']!;
 
 export const verifyToken: RequestHandler = (req, res, next) => {
@@ -17,7 +15,7 @@ export const verifyToken: RequestHandler = (req, res, next) => {
 
     const token: string = tokenBearer.split(' ')[1];
 
-    JWT.verify(token, secret, (err: JWTError, decoded: any) => {
+    JWT.verify(token, secret, (err, decoded) => {
       if (err) {
         const result: ResponseFormat = errorResponse('EACCES', 403, 'headers:{Authorization}', 'Authorize user', 'Client key is invalid. Access Denied!', { error: true, operationStatus: 'Processs Terminated!' });
         return res.status(403).json(result);
