@@ -18,13 +18,11 @@ const options = {
 
 mongoose
   .connect(
-    (process.env.DB_URI! || process.env['MONGODB_URI_LOCAL']!),
+    (process.env.MONGODB_URI! || process.env['MONGODB_URI_LOCAL']!),
     options
   )
   .then(() => {
-    if (process.env.NODE_ENV === 'development') {
-      console.log('Mongodb connected!');
-    }
+    console.log('Mongodb connected!');
   });
 
 if (process.env.NODE_ENV === 'development') {
