@@ -53,3 +53,5 @@ export_env.bash
 .vscode
 
 .compiled
+
+.pytest_cache
