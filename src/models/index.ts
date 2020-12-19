@@ -3,6 +3,7 @@ import { config } from 'dotenv';
 import Users from '@models/users';
 import Loans from '@models/loan';
 import Accounts from '@models/account';
+import { MONGODB_URI } from '@modules/util/secrets';
 
 config();
 
@@ -18,7 +19,7 @@ const options = {
 
 mongoose
   .connect(
-    (process.env.MONGODB_URI!),
+    (MONGODB_URI!),
     options
   )
   .then(() => {
